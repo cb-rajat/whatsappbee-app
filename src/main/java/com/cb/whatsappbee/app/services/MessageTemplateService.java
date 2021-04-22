@@ -10,4 +10,6 @@ public class MessageTemplateService {
     public Optional<String> getTemplate(String eventType) {
         return Optional.empty();
     }
+
+    // TODO Use https://stackoverflow.com/a/5057976 for message formats
 }
