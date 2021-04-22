@@ -28,7 +28,6 @@ public class ChargebeeWebhookService {
         }
 
         String eventType = event.get("event_type").asText();
-        System.out.println(eventType);
         Optional<String> optTemplate = messageTemplateService.getTemplate(eventType);
         Optional<String> optContentKey = parserService.getContentKey(eventType);
 

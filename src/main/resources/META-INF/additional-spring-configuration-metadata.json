@@ -1,0 +1,13 @@
+{
+  "properties": [
+    {
+      "name": "prop.cb.api.key",
+      "type": "java.lang.String",
+      "description": "Chargebee API Key."
+    },
+    {
+      "name": "prop.phone.from",
+      "type": "java.lang.String",
+      "description": "From phone number for WhatsApp communication."
+    }
+  ] }
