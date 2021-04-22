@@ -11,11 +11,14 @@ public class ChargebeeWebhookService {
 
     private final MessagingService messagingService;
     private final MessageTemplateService messageTemplateService;
+    private final ParserService parserService;
 
     public ChargebeeWebhookService(@Autowired MessagingService messagingService,
-                                   @Autowired MessageTemplateService messageTemplateService) {
+                                   @Autowired MessageTemplateService messageTemplateService,
+                                   @Autowired ParserService parserService) {
         this.messagingService = messagingService;
         this.messageTemplateService = messageTemplateService;
+        this.parserService = parserService;
     }
 
     public void processAllEvents(JsonNode event) {
@@ -24,16 +27,19 @@ public class ChargebeeWebhookService {
             return;
         }
 
-        System.out.println(event.get("event_type"));
-        Optional<String> optTemplate = messageTemplateService.getTemplate(event.get("event_type").asText());
+        String eventType = event.get("event_type").asText();
+        System.out.println(eventType);
+        Optional<String> optTemplate = messageTemplateService.getTemplate(eventType);
+        Optional<String> optContentKey = parserService.getContentKey(eventType);
 
-        if (!optTemplate.isPresent()) {
+        if (!optTemplate.isPresent() || !optContentKey.isPresent()) {
             return;
         }
 
         String template = optTemplate.get();
+        String contentKey = optContentKey.get();
 
-        messagingService.sendMessage("919953783383", getCustomerPhoneNumber(event, "invoice"), template);
+        messagingService.sendMessage("919953783383", getCustomerPhoneNumber(event, contentKey), template);
 
     }
 
