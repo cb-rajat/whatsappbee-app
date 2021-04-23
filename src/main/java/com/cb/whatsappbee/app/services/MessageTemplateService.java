@@ -14,7 +14,7 @@ public class MessageTemplateService {
 
     public MessageTemplateService() {
         templates = new HashMap<>();
-        templates.put("invoice_generated", "You have a new invoice! Please view it here: {0}. Reply with PAY to make payment!");
+        templates.put("invoice_generated", "You have a new invoice! Reply with PAY to make payment! {0}. ");
         templates.put("subscription_paused", "Your subscription was successfully paused. Reply with RESUME to resume.");
         templates.put("subscription_paused_error", "Your subscription could not be paused. Please contact U Tees Me support for further help.");
         templates.put("invoice_updated", "You have successfully made payment for ${0} towards your invoice. Thank you!");
@@ -23,6 +23,7 @@ public class MessageTemplateService {
         templates.put("subscription_resumed_error", "Your subscription could not be resumed. Please contact U Tees Me support for further help.");
         templates.put("customer_not_found", "We could not find any customer account with your phone number. Inconvenience is regretted. Please contact U Tees Me support for further help.");
         templates.put("subscription_not_found", "We could not find any subscription with your account. Inconvenience is regretted. Please contact U Tees Me support for further help.");
+        templates.put("invoice_not_found", "Looks like you don't have any unpaid invoices! Start a new subscription to get a chance to pay us!");
         templates.put("chargebee_error", "We encountered an unknown error while performing the requested action. Inconvenience is regretted. Please contact U Tees Me support for further help.");
     }
 

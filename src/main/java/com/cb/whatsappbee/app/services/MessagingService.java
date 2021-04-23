@@ -59,15 +59,23 @@ public class MessagingService {
                 if (!response.getSuccess()) {
                     sendMessageForErrorCode(response.getErrorCode().name().toLowerCase(), from);
                 }
-                return chargebeeClient.pauseSubscription(from);
+                return response;
             }
 
             case "RESUME": {
-                return chargebeeClient.resumeSubscription(from);
+                MessageActionResponse response = chargebeeClient.resumeSubscription(from);
+                if(!response.getSuccess()) {
+                    sendMessageForErrorCode(response.getErrorCode().name().toLowerCase(), from);
+                }
+                return response;
             }
 
             case "PAY": {
-
+                MessageActionResponse response = chargebeeClient.payForInvoice(from);
+                if(!response.getSuccess()) {
+                    sendMessageForErrorCode(response.getErrorCode().name().toLowerCase(), from);
+                }
+                return response;
             }
 
         }
