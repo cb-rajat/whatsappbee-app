@@ -2,24 +2,31 @@ package com.cb.whatsappbee.app.services;
 
 import com.cb.whatsappbee.app.clients.ChargebeeClient;
 import com.cb.whatsappbee.app.models.MessageActionResponse;
-import com.cb.whatsappbee.app.models.SubscriptionMessageActionResponse;
 import okhttp3.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
+
 @Service
 public class MessagingService {
 
     private final ChargebeeClient chargebeeClient;
+    private final MessageTemplateService messageTemplateService;
+    private final String from;
     private final String messagingServiceUrl;
     private final OkHttpClient client = new OkHttpClient().newBuilder().build();
     private final MediaType mediaType = MediaType.parse("application/x-www-form-urlencoded");
 
     public MessagingService(@Autowired ChargebeeClient chargebeeClient,
+                            @Autowired MessageTemplateService messageTemplateService,
+                            @Value("${prop.phone.from}") String from,
                             @Value("${prop.messaging.url}") String messagingServiceUrl) {
         this.chargebeeClient = chargebeeClient;
+        this.messageTemplateService = messageTemplateService;
         this.messagingServiceUrl = messagingServiceUrl;
+        this.from = from;
     }
 
     public void sendMessage(String from, String to, String message) {
@@ -30,6 +37,7 @@ public class MessagingService {
                             "&to_whatsapp_number=" + to +
                             "&txt_msg=" + message;
             RequestBody body = RequestBody.create(requestBody, mediaType);
+            System.out.println(requestBody);
             Request request = new Request.Builder()
                     .url(messagingServiceUrl)
                     .method("POST", body)
@@ -47,7 +55,11 @@ public class MessagingService {
 
         switch(message) {
             case "PAUSE": {
-                chargebeeClient.pauseSubscription(from);
+                MessageActionResponse response = chargebeeClient.pauseSubscription(from);
+                if (!response.getSuccess()) {
+                    sendMessageForErrorCode(response.getErrorCode().name().toLowerCase(), from);
+                }
+                return chargebeeClient.pauseSubscription(from);
             }
 
             case "RESUME": {
@@ -61,6 +73,13 @@ public class MessagingService {
         }
 
         return null;
+    }
+
+    private void sendMessageForErrorCode(String errorCode, String to) {
+
+        Optional<String> optMessage = messageTemplateService.formatTemplate(errorCode);
+        optMessage.ifPresent(message -> sendMessage(from, to, message));
+
     }
 
 

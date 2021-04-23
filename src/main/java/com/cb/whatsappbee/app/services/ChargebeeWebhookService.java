@@ -32,6 +32,7 @@ public class ChargebeeWebhookService {
         }
 
         String eventType = event.get("event_type").asText();
+        System.out.println(eventType);
         Optional<String> optContentKey = parserService.getContentKey(eventType);
 
         if (!optContentKey.isPresent()) {
@@ -67,6 +68,7 @@ public class ChargebeeWebhookService {
                         .get("amount_paid")
                         .asText();
             }
+
         }
 
         return null;

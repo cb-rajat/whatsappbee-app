@@ -1,12 +1,17 @@
 package com.cb.whatsappbee.app.clients;
 
 import com.cb.whatsappbee.app.models.*;
+import com.cb.whatsappbee.app.services.MessageTemplateService;
+import com.cb.whatsappbee.app.services.MessagingService;
 import com.chargebee.Environment;
 import com.chargebee.ListResult;
 import com.chargebee.Result;
 import com.chargebee.models.Customer;
+import com.chargebee.models.Download;
+import com.chargebee.models.Invoice;
 import com.chargebee.models.Subscription;
 import com.chargebee.models.enums.PauseOption;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -14,6 +19,8 @@ import java.math.BigDecimal;
 
 @Component
 public class ChargebeeClient {
+
+
 
     public ChargebeeClient(@Value("${prop.cb.api.key}") String chargebeeApiKey,
                            @Value("${prop.cb.sitename}") String chargebeeSiteName) {
@@ -134,8 +141,19 @@ public class ChargebeeClient {
     }
 
     // https://apidocs.chargebee.com/docs/api/invoices?prod_cat_ver=1#retrieve_invoice_as_pdf
-    public void getInvoicePdf(String invoiceId) {
+    public String getInvoicePdf(String invoiceId) {
 
+        try {
+            Result result = Invoice.pdf(invoiceId).request();
+            if (result.httpCode() == 200) {
+                Download download = result.download();
+                return download.downloadUrl();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return null;
     }
 
     // https://apidocs.chargebee.com/docs/api/orders?prod_cat_ver=1#list_orders_subscription_id

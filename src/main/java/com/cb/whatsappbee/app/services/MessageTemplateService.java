@@ -19,6 +19,11 @@ public class MessageTemplateService {
         templates.put("subscription_paused_error", "Your subscription could not be paused. Please contact U Tees Me support for further help.");
         templates.put("invoice_updated", "You have successfully made payment for ${0} towards your invoice. Thank you!");
         templates.put("invoice_updated_error", "Your payment could not be processed. Please log on to U Tees Me website to try again.");
+        templates.put("subscription_resumed", "Your subscription was successfully resumed. Thank you for your patronage.");
+        templates.put("subscription_resumed_error", "Your subscription could not be resumed. Please contact U Tees Me support for further help.");
+        templates.put("customer_not_found", "We could not find any customer account with your phone number. Inconvenience is regretted. Please contact U Tees Me support for further help.");
+        templates.put("subscription_not_found", "We could not find any subscription with your account. Inconvenience is regretted. Please contact U Tees Me support for further help.");
+        templates.put("chargebee_error", "We encountered an unknown error while performing the requested action. Inconvenience is regretted. Please contact U Tees Me support for further help.");
     }
 
     public Optional<String> formatTemplate(String eventType, boolean success, String... variables) {
