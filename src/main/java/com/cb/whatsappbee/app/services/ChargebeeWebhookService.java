@@ -2,6 +2,7 @@ package com.cb.whatsappbee.app.services;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -12,13 +13,16 @@ public class ChargebeeWebhookService {
     private final MessagingService messagingService;
     private final MessageTemplateService messageTemplateService;
     private final ParserService parserService;
+    private final String fromPhoneNumber;
 
     public ChargebeeWebhookService(@Autowired MessagingService messagingService,
                                    @Autowired MessageTemplateService messageTemplateService,
-                                   @Autowired ParserService parserService) {
+                                   @Autowired ParserService parserService,
+                                   @Value("${prop.phone.from}") String fromPhoneNumber) {
         this.messagingService = messagingService;
         this.messageTemplateService = messageTemplateService;
         this.parserService = parserService;
+        this.fromPhoneNumber = fromPhoneNumber;
     }
 
     public void processAllEvents(JsonNode event) {
@@ -38,7 +42,7 @@ public class ChargebeeWebhookService {
         String template = optTemplate.get();
         String contentKey = optContentKey.get();
 
-        messagingService.sendMessage("919953783383", getCustomerPhoneNumber(event, contentKey), template);
+        messagingService.sendMessage(fromPhoneNumber, getCustomerPhoneNumber(event, contentKey), template);
 
     }
 
