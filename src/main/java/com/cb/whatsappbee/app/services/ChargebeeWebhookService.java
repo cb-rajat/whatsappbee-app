@@ -32,17 +32,17 @@ public class ChargebeeWebhookService {
         }
 
         String eventType = event.get("event_type").asText();
-        Optional<String> optTemplate = messageTemplateService.getTemplate(eventType);
         Optional<String> optContentKey = parserService.getContentKey(eventType);
 
-        if (!optTemplate.isPresent() || !optContentKey.isPresent()) {
+        if (!optContentKey.isPresent()) {
             return;
         }
 
-        String template = optTemplate.get();
         String contentKey = optContentKey.get();
+        String templateVariable = getTemplateVariables(eventType, contentKey, event);
+        Optional<String> optMessage = messageTemplateService.formatTemplate(eventType, templateVariable);
 
-        messagingService.sendMessage(fromPhoneNumber, getCustomerPhoneNumber(event, contentKey), template);
+        optMessage.ifPresent(message -> messagingService.sendMessage(fromPhoneNumber, getCustomerPhoneNumber(event, contentKey), message));
 
     }
 
@@ -55,6 +55,21 @@ public class ChargebeeWebhookService {
                 .get("phone")
                 .asText();
 
+    }
+
+    private String getTemplateVariables(String eventType, String contentKey, JsonNode event) {
+
+        switch(eventType) {
+            case "invoice_updated": {
+                return event
+                        .get("content")
+                        .get(contentKey)
+                        .get("amount_paid")
+                        .asText();
+            }
+        }
+
+        return null;
     }
 
 }

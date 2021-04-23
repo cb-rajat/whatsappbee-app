@@ -2,6 +2,7 @@ package com.cb.whatsappbee.app.services;
 
 import com.cb.whatsappbee.app.clients.ChargebeeClient;
 import com.cb.whatsappbee.app.models.MessageActionResponse;
+import com.cb.whatsappbee.app.models.SubscriptionMessageActionResponse;
 import okhttp3.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -25,8 +26,8 @@ public class MessagingService {
 
         try {
             String requestBody =
-                    "from_whatsapp_number=whatsapp:" + from +
-                            "&to_whatsapp_number=whatsapp:" + to +
+                    "from_whatsapp_number=" + from +
+                            "&to_whatsapp_number=" + to +
                             "&txt_msg=" + message;
             RequestBody body = RequestBody.create(requestBody, mediaType);
             Request request = new Request.Builder()
@@ -35,6 +36,7 @@ public class MessagingService {
                     .addHeader("Content-Type", "application/x-www-form-urlencoded")
                     .build();
             Response response = client.newCall(request).execute();
+            System.out.println(response.code());
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -42,15 +44,18 @@ public class MessagingService {
     }
 
     public MessageActionResponse processMessage(String from, String message) {
-        System.out.println(from + " " + message);
 
         switch(message) {
             case "PAUSE": {
-                return chargebeeClient.pauseSubscription(from);
+                chargebeeClient.pauseSubscription(from);
             }
 
             case "RESUME": {
                 return chargebeeClient.resumeSubscription(from);
+            }
+
+            case "PAY": {
+
             }
 
         }
