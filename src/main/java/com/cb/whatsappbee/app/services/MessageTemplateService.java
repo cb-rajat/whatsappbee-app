@@ -8,6 +8,13 @@ import java.util.Optional;
 public class MessageTemplateService {
 
     public Optional<String> getTemplate(String eventType) {
+
+        switch (eventType) {
+            case "invoice_generated": {
+                return Optional.of("invoice");
+            }
+        }
+
         return Optional.empty();
     }
 
