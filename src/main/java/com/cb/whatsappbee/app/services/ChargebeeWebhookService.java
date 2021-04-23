@@ -1,5 +1,6 @@
 package com.cb.whatsappbee.app.services;
 
+import com.cb.whatsappbee.app.clients.ChargebeeClient;
 import com.fasterxml.jackson.databind.JsonNode;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -12,15 +13,18 @@ public class ChargebeeWebhookService {
 
     private final MessagingService messagingService;
     private final MessageTemplateService messageTemplateService;
+    private final ChargebeeClient chargebeeClient;
     private final ParserService parserService;
     private final String fromPhoneNumber;
 
     public ChargebeeWebhookService(@Autowired MessagingService messagingService,
                                    @Autowired MessageTemplateService messageTemplateService,
+                                   @Autowired ChargebeeClient chargebeeClient,
                                    @Autowired ParserService parserService,
                                    @Value("${prop.phone.from}") String fromPhoneNumber) {
         this.messagingService = messagingService;
         this.messageTemplateService = messageTemplateService;
+        this.chargebeeClient = chargebeeClient;
         this.parserService = parserService;
         this.fromPhoneNumber = fromPhoneNumber;
     }
@@ -32,17 +36,18 @@ public class ChargebeeWebhookService {
         }
 
         String eventType = event.get("event_type").asText();
-        Optional<String> optTemplate = messageTemplateService.getTemplate(eventType);
+        System.out.println(eventType);
         Optional<String> optContentKey = parserService.getContentKey(eventType);
 
-        if (!optTemplate.isPresent() || !optContentKey.isPresent()) {
+        if (!optContentKey.isPresent()) {
             return;
         }
 
-        String template = optTemplate.get();
         String contentKey = optContentKey.get();
+        String templateVariable = getTemplateVariables(eventType, contentKey, event);
+        Optional<String> optMessage = messageTemplateService.formatTemplate(eventType, templateVariable);
 
-        messagingService.sendMessage(fromPhoneNumber, getCustomerPhoneNumber(event, contentKey), template);
+        optMessage.ifPresent(message -> messagingService.sendMessage(fromPhoneNumber, getCustomerPhoneNumber(event, contentKey), message));
 
     }
 
@@ -55,6 +60,33 @@ public class ChargebeeWebhookService {
                 .get("phone")
                 .asText();
 
+    }
+
+    private String getTemplateVariables(String eventType, String contentKey, JsonNode event) {
+
+        switch(eventType) {
+            case "invoice_updated": {
+                return event
+                        .get("content")
+                        .get(contentKey)
+                        .get("amount_paid")
+                        .asText();
+            }
+
+            case "invoice_generated": {
+                String invoiceId = event
+                        .get("content")
+                        .get(contentKey)
+                        .get("id")
+                        .asText();
+                String invoicePdfUrl = chargebeeClient.getInvoicePdf(invoiceId);
+                System.out.println(invoicePdfUrl);
+                return invoicePdfUrl;
+            }
+
+        }
+
+        return null;
     }
 
 }

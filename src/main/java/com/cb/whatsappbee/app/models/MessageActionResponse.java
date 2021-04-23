@@ -7,5 +7,6 @@ public class MessageActionResponse {
 
     private Boolean success;
     private ErrorCode errorCode;
+    private String customerPhone;
 
 }

@@ -14,7 +14,10 @@ public class ParserService {
     public ParserService() {
         eventTypeVsKey = new HashMap<>();
         eventTypeVsKey.put("invoice_generated", "invoice");
+        eventTypeVsKey.put("invoice_updated", "invoice");
         eventTypeVsKey.put("plan_created", "plan");
+        eventTypeVsKey.put("subscription_paused", "customer");
+        eventTypeVsKey.put("subscription_resumed", "customer");
     }
 
     public Optional<String> getContentKey(String eventType) {
